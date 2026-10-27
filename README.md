@@ -319,15 +319,3 @@ The model returns these main fields:
 - Backend exceptions are wrapped by the API route, so some original HTTP status codes may be returned as `500`.
 - API keys are rotated through a global index and are not protected by a lock.
 
-## Production Recommendations
-
-- Add server-side authentication and authorization.
-- Restrict CORS to trusted frontend origins.
-- Store API keys in a managed secrets service.
-- Add request logging, rate limiting, and monitoring.
-- Add automated tests for the API contract and schema normalization.
-- Implement `/api/benchmark` or remove the benchmark UI until the route is available.
-
-## License
-
-No license file is currently included. Add a license before publishing or distributing this project.
