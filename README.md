@@ -35,7 +35,6 @@ The application uses a FastAPI backend, a React/Vite frontend, and Google Gemini
 
 ## System Architecture
 
-```mermaid
 flowchart TD
     subgraph Client["Frontend Layer (React + Vite)"]
         UI["User Interface (App.jsx)"]
@@ -45,7 +44,7 @@ flowchart TD
         Dashboard["Analysis View & Benchmark Dashboard"]
     end
 
-    subgraph Server["Backend Layer (FastAPI)"]
+   subgraph Server["Backend Layer (FastAPI)"]
         Router["FastAPI Application (main.py)"]
         CORS["CORS Middleware"]
         Analyzer["Analysis Pipeline (analyzer.py)"]
@@ -55,10 +54,9 @@ flowchart TD
         Evaluator["Benchmark Evaluation Suite (evaluator.py)"]
     end
 
-    subgraph AI["AI Layer (Google Gemini)"]
+ subgraph AI["AI Layer (Google Gemini)"]
         Gemini["Google Gemini Model (gemini-3.1-flash-lite)"]
-    end
-
+  end
     UI --> Auth
     Auth --> Input
     Samples --> Input
@@ -73,13 +71,12 @@ flowchart TD
     Schema -- "Validation Fails" -->|Self-Correction Retry| Gemini
     Schema -- "Validated Object" --> Router
     Router -->|JSON Response| Dashboard
-```
 
 
 ## Project Structure
 
-```text
-.
+text
+
 |-- backend/
 |   |-- app/
 |   |   |-- analyzer.py       # Gemini prompt, key rotation, validation, normalization
@@ -98,7 +95,7 @@ flowchart TD
 |   `-- package.json
 |-- start.sh                  # Starts backend and frontend together
 `-- README.md
-```
+
 
 ## Requirements
 
@@ -111,19 +108,19 @@ flowchart TD
 
 Create `backend/.env` and add at least one Gemini API key:
 
-```env
+env
 GEMINI_API_KEY_1=your_key_here
 GEMINI_MODEL=gemini-3.1-flash-lite
-```
+
 
 You can configure up to 11 keys:
 
-```env
+env
 GEMINI_API_KEY_1=your_first_key
 GEMINI_API_KEY_2=your_second_key
 ...
 GEMINI_API_KEY_11=your_eleventh_key
-```
+
 
 The backend tries keys in order and rotates to the next key when Gemini returns a quota-related error.
 
@@ -131,10 +128,10 @@ The backend tries keys in order and rotates to the next key when Gemini returns 
 
 ### Option 1: Start Everything
 
-```bash
+bash
 chmod +x start.sh
 ./start.sh
-```
+
 
 This starts:
 
@@ -145,34 +142,34 @@ This starts:
 
 Start the backend:
 
-```bash
+bash
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python run.py
-```
+
 
 Start the frontend in another terminal:
 
-```bash
+bash
 cd frontend
 npm install
 npm run dev -- --host 0.0.0.0 --port 3000
-```
+
 
 Open the app at:
 
-```text
+text
 http://localhost:3000
-```
+
 
 Default demo login:
 
-```text
+text
 Username: admin
 Password: admin
-```
+
 
 ## API Endpoints
 
@@ -184,7 +181,7 @@ Password: admin
 
 ### Analyze Request
 
-```json
+json
 {
   "user_name": "Alex Morgan",
   "user_role": "Executive Director",
@@ -196,11 +193,11 @@ Password: admin
   "subject": "Follow-up on proposal",
   "body": "Hi Alex, can you review the proposal and send feedback by Friday?"
 }
-```
+
 
 ### Analyze Response
 
-```json
+json
 {
   "success": true,
   "execution_source": "Gemini (gemini-3.1-flash-lite) - key #1",
@@ -232,7 +229,7 @@ Password: admin
     "confidence": 0.9
   }
 }
-```
+
 
 ## End-to-End Workflow Stages
 
@@ -271,7 +268,7 @@ The application executes each analysis through six distinct pipeline stages:
 ### Stage 5: JSON Cleansing, Schema Normalization & Self-Correction
 - **Components & Tools:** `analyzer.py` (`clean_json`, `normalize`, `_ensure_body`), `schemas.py`, Pydantic v2.
 - **Workflow:**
-  1. `clean_json()` strips any extraneous markdown enclosures (````json ... ````).
+  1. `clean_json()` strips any extraneous markdown enclosures (`json ... `).
   2. `normalize()` canonicalizes schema variations, repairs nested intent/urgency/sentiment blocks, and maps synonymous keys.
   3. Validates the normalized dictionary against `EmailAnalysisResult`.
   4. **Self-Correction Retry Loop:** If validation fails, the backend captures the `ValidationError` details, builds a targeted repair prompt, queries Gemini for corrected JSON, and re-validates.
@@ -318,4 +315,3 @@ The model returns these main fields:
 - The frontend includes a benchmark view, but the backend does not currently expose `/api/benchmark`.
 - Backend exceptions are wrapped by the API route, so some original HTTP status codes may be returned as `500`.
 - API keys are rotated through a global index and are not protected by a lock.
-
